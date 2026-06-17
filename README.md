@@ -1,79 +1,87 @@
-# ASL Recognition — CNN + MobileNetV2 (Group Project)
+# ASL Recognition — CNN + MobileNetV2:
+Real-time ASL Sign Language Recognition system that converts hand gestures (A–Z) into text and speech using Deep Learning, MobileNetV2, MediaPipe, and OpenCV.
+This project was developed as a group academic project for the Computer Engineering program (2024–25). The goal was to build a practical assistive system that helps bridge communication barriers by recognizing ASL hand gestures in real time and converting them into readable and spoken output. The system captures hand gestures through a webcam, identifies the corresponding ASL alphabet, builds words letter by letter, and provides text-to-speech output.
 
-Real-time American Sign Language (ASL) Recognition system that converts hand gestures (A–Z) into text and speech using Deep Learning, MobileNetV2, MediaPipe, and OpenCV.
+## WHAT IT DOES:
+Point your webcam at your hand, sign a letter, and the system recognizes it in real time, builds it into a word, and can speak it out loud. That's basically it. The tricky part was making it actually work in real conditions — bad lighting, different hand sizes, noisy backgrounds — not just on a clean dataset.
+We ended up at ~94% validation accuracy with <200ms latency at 30 FPS, which we're pretty happy with for a college project.
 
-## Project Overview
+## STATISTICS: 
+Training Accuracy -> ~99% (Phase 2)
+Validation Accuracy -> ~94%
+Real-Time Speed -> 30FPS
+Latency < 200ms
+Classes26 -> (A–Z)
 
-This project was developed as a group academic project for the Computer Engineering program (2024–25). The goal was to build a practical assistive system that helps bridge communication barriers by recognizing ASL hand gestures in real time and converting them into readable and spoken output.
+## TRAINED MODEL FILES: Google Drive:(https://drive.google.com/drive/folders/1j1mv2SUJ9yimuWP1KJ2j6wlXIJTpzWWc?usp=sharing)
+**The trained model files are too large for GitHub so we've put them on Drive. Download whichever you need:**<br>
+- best_asl_model.h5Best(overall model checkpoint) -> [Download](https://drive.google.com/file/d/1-TV51hk2753F7T1BDDO95tg1aFDJ33kv/view?usp=drive_link)<br>
+- best_phase1.keras(End of Phase 1 (just the dense head trained)) -> [Download](https://drive.google.com/file/d/1R9TbUIFfCZ0L85AC1qu_AMS_sWzW0PEu/view?usp=drive_link)<br>
+- best_sign_model.keras(Best sign model in Keras format) -> [Download](https://drive.google.com/file/d/12c0Ze39xpcQzqWW8iU4SOYltZ3tWnDrm/view?usp=drive_link)<br>
+- SLR_final.h5(Final trained model) -> [Download](https://drive.google.com/file/d/1xCga8GR7vCW8dUnbpFhS4gMqMspdb2aE/view?usp=drive_link)<br>
 
-The system captures hand gestures through a webcam, identifies the corresponding ASL alphabet, builds words letter by letter, and provides text-to-speech output.
+## MODEL:
+We used MobileNetV2 as the backbone (pretrained on ImageNet) and added our own classification head on top:
+Input (224×224×3)
+  → MobileNetV2 (pretrained, ImageNet)
+  → Global Average Pooling
+  → Dense(128) + Dropout(0.3)
+  → Dense(64) + Dropout(0.2)
+  → Softmax → 26 classes
+  
+Training was split into two phases:
+- Phase 1:1–5Dense head only — fast initial accuracy gain
+- Phase 2:6–35Full model fine-tuning — slower, more stable
 
-## Team Members
+- Optimizer: Adam (lr=0.001)
+- Loss: Categorical Cross-Entropy
+- Batch size: 32
+- ReduceLROnPlateau to halve LR when it gets stuck
 
-* Brinda Naik
-* Moksha Patel
-* Nyasa Desai
-* Arya Patel
-* Manya Jain
+## SETUP:
+pip install tensorflow opencv-python mediapipe pyttsx3 numpy matplotlib
+- Then just run:
+python realtime_sign.py
+You'll need Python 3.8+ and a webcam. That's it.
 
-## My Contributions
+## CONTROLS:
+- SPACE -> Speak the current word
+- Backspace -> Delete last letter
+- C -> Clear everything
+- Q -> Quit
 
-* Participated in project design and development.
-* Assisted with dataset preparation and preprocessing.
-* Contributed to model training, testing, and evaluation.
-* Worked on project documentation and result analysis.
-* Collaborated on debugging and system integration.
+## THE HUD:
+The live window shows:
+- Camera feed with hand detection overlay
+- Confidence bar — green (>80%), yellow (>60%), red (<60%)
+- Small ROI preview (top-right) — what the model actually sees (96×96 white canvas)
+- Current word being built
+- Last 5 spoken words at the bottom
 
-> Note: This was a collaborative team project. All major components were developed jointly by the project team.
+## STACK:
+TensorFlow · Keras · MobileNetV2 · MediaPipe · OpenCV · pyttsx3 · NumPy · Matplotlib
 
-## Key Features
+## Team Members:
+Moksha Patel
+Brinda Naik
+Nyasa Desai
+Arya Patel
+Manya Jain
 
-* Real-time ASL alphabet recognition (A–Z)
-* MobileNetV2-based transfer learning model
-* MediaPipe hand landmark detection
-* Live webcam inference
-* Word formation from detected letters
-* Text-to-speech output
-* Confidence-based prediction visualization
-* Real-time performance with low latency
+## My Contributions:
+Implemented and tested the real-time sign recognition pipeline using OpenCV and MediaPipe for hand detection and gesture capture.
+Assisted in model evaluation and validation by analyzing prediction accuracy and real-time performance metrics.
+Contributed to debugging, system integration, and project documentation.
+Participated in project presentation and result analysis.
 
-## Results
+## FUTURE SCOPE:
+- LSTM for dynamic gestures (J and Z involve movement, static frames don't capture them)
+- Facial landmarks for more complete ASL understanding
+- BSL / ISL support via domain adaptation
+- TFLite export for mobile
+- Language model for full sentence prediction instead of letter-by-letter
 
-| Metric              | Value    |
-| ------------------- | -------- |
-| Training Accuracy   | ~99%     |
-| Validation Accuracy | ~94%     |
-| Classes             | 26 (A–Z) |
-| Frame Rate          | ~30 FPS  |
-| Latency             | <200 ms  |
-
-## Technologies Used
-
-* TensorFlow
-* Keras
-* MobileNetV2
-* OpenCV
-* MediaPipe
-* NumPy
-* Matplotlib
-* pyttsx3
-
-## Skills Demonstrated
-
-* Deep Learning
-* Transfer Learning
-* Computer Vision
-* Image Classification
-* Model Evaluation
-* Real-Time Inference
-* Team Collaboration
-* Software Documentation
-
-## Future Improvements
-
-* Dynamic gesture recognition using LSTM networks
-* Mobile deployment using TensorFlow Lite
-* Support for additional sign languages (ISL/BSL)
-* Sentence-level prediction using language models
-* Cloud deployment and MLOps integration
-
+## Acknowledgements:
+- Kaggle ASL Alphabet Dataset
+- Google MediaPipe
+- ImageNet
